@@ -1,0 +1,52 @@
+#!/bin/sh
+seed=`head -c 2 /dev/urandom | hexdump -e '"%u"'`
+#seed=16737
+#seed=43828
+#seed=25043
+#seed=7533
+var_actions=`ls -x actions/*.lp`
+var_states=`ls -x states/*.lp`
+sys_world="world.lp params.lp"
+sys_actions="activity.lp $var_actions"
+sys_states="states.lp $var_states"
+sys_effects="effects.lp results.lp"
+sys_conditions="preconditions.lp"
+sys_motives="motivation.lp"
+core="$sys_world $sys_actions $sys_states $sys_effects $sys_conditions"
+sources="$core $sys_motives constraints.lp"
+sys_story="english.lp disp.lp order.lp"
+opts="-n 1 --rand-freq=0.05 --seed=$seed --restart-on-model"
+echo "Seed: $seed"
+echo "seed($seed).\n#begin_lua\nmath.randomseed($seed)\n#end_lua." > seed
+echo "Grounding..."
+time --format="%E, %K KB" clingo seed functions $sources -t > out/grounded \
+  || exit
+echo "% vim"": syn=gringo" >> out/grounded
+echo "  ...done."
+echo "Solving..."
+time --format="%E, %K KB"\
+ clingo seed functions $sources $opts |\
+  tail -n +2 |\
+  head -n -7 |\
+  sed "s/) /).\n/g" |\
+  head -n -1 |\
+  sort > out/solved
+echo "% vim"": syn=gringo" >> out/solved
+echo "  ...done."
+echo "Generating 'story' version..."
+time --format="%E, %K KB"\
+ clingo out/solved $sys_story |\
+  tail -n +2 |\
+  head -n -7 |\
+  sed "s/) /).\n/g" |\
+  sed "s/order(\([0-9]\),/00\1:/g" |\
+  sed "s/order(\([0-9][0-9]\),/0\1:/g" |\
+  head -n -1 |\
+  sort |\
+  sed "s/^[0-9][0-9]1:\(.\+\)).$/\1/" |\
+  sed "s/^[0-9][0-9]2:\(.\+\)).$/  \1/" |\
+  sed "s/^[0-9][0-9]3:\(.\+\)).$/    \1/" |\
+  sed "s/^[0-9][0-9]4:\(.\+\)).$/      \1/" > out/story
+#  sort > out/story
+echo "% vim"": syn=gringo" >> out/story
+echo "  ...done."

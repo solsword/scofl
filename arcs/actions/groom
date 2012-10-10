@@ -1,0 +1,22 @@
+#!/bin/sh
+find="_reaction(R, rxn_passive("
+replace="_reaction(R, passive, rxn("
+for f in `ls *.lp`
+do
+  sed $f --in-place=.bak -e "s/$find/$replace/"
+done
+
+# Actions:
+#activate break destroy repair obtain guard steal give
+#
+#attack capture kill
+#
+#defend rescue heal
+#
+#flee pursue
+#
+#travel
+
+# TODO: Implement lending?
+# TODO: Allow items to be lost?
+# TODO: Non-reaction freeing people!

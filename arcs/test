@@ -1,0 +1,80 @@
+#!/bin/sh
+seed=`head -c 2 /dev/urandom | hexdump -e '"%u"'`
+# Find defined action types to test:
+to_test=`grep -h atype actions/*.lp | sed -e "s/atype(\([^)]\+\))./\1/g"`
+var_actions=`ls -x actions/*.lp`
+var_states=`ls -x states/*.lp`
+sys_world="world.lp params.lp"
+sys_actions="activity.lp $var_actions"
+sys_states="states.lp $var_states"
+sys_effects="effects.lp results.lp"
+sys_conditions="preconditions.lp"
+sys_motives="motivation.lp"
+core="$sys_world $sys_actions $sys_states $sys_effects $sys_conditions"
+sources="$core $sys_motives constraints.lp"
+opts="--rand-freq=0.0 --seed=$seed --restart-on-model"
+echo "Seed: $seed"
+echo "seed($seed).\n#begin_lua\nmath.randomseed($seed)\n#end_lua." > seed
+passed=0
+failed=0
+errors=0
+total=0
+for action in $to_test;
+do
+  grep _reaction actions/$action.lp > /dev/null
+  has_reaction=$?
+  grep reaction_only\($action\) actions/$action.lp > /dev/null
+  reaction_only=$?
+  now=`date +%T`
+  if [ $reaction_only -ne 0 ]
+  then
+    total=`expr $total + 1`
+    echo ":- not action(1, $action)." > tc
+    echo -n "[$now] Testing $action as an action... "
+    clingo seed functions $sources tc $opts 2>/dev/null 1>/dev/null
+    result=$?
+    if [ $result -eq 10 ]
+    then
+      passed=`expr $passed + 1`
+      echo "  ...passed."
+    elif [ $result -eq 20 ]
+    then
+      failed=`expr $failed + 1`
+      echo "  ...FAILED."
+    else
+      errors=`expr $errors + 1`
+      echo " ...ERROR (result was $result)."
+    fi
+    # TODO: Add some double-checking?
+  fi
+  now=`date +%T`
+  if [ $has_reaction -ne 1 ]
+  then
+    total=`expr $total + 1`
+    echo ":- not action(r(1), $action)." > tc
+    echo -n "[$now] Testing $action as a reaction... "
+    clingo seed functions $sources tc $opts 2>/dev/null 1>/dev/null
+    result=$?
+    if [ $result -eq 10 ]
+    then
+      passed=`expr $passed + 1`
+      echo "  ...passed."
+    elif [ $result -eq 20 ]
+    then
+      failed=`expr $failed + 1`
+      echo "  ...FAILED."
+    else
+      errors=`expr $errors + 1`
+      echo " ...ERROR (result was $result)."
+    fi
+    # TODO: Add some double-checking?
+  fi
+done
+rm tc
+echo "  ...$passed/$total tests passed; $failed failed; $errors errors."
+if [ $passed -eq $total ]
+then
+  echo "All tests passed."
+else
+  echo "Some tests failed!"
+fi

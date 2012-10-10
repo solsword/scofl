@@ -1,0 +1,4 @@
+seed(7533).
+#begin_lua
+math.randomseed(7533)
+#end_lua.

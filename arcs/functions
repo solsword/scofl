@@ -1,0 +1,10 @@
+
+#begin_lua
+function rand(U)
+  return math.random(0, U)
+end
+
+function randm(L, U)
+  return math.random(L, U)
+end
+#end_lua.

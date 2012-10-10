@@ -1,4 +1,5 @@
 #!/bin/sh
+if [ ! -d out ]; then mkdir out; fi
 seed=`head -c 2 /dev/urandom | hexdump -e '"%u"'`
 var_actions=`ls -x actions/*.lp`
 var_states=`ls -x states/*.lp`
@@ -17,11 +18,11 @@ echo "seed($seed).\n#begin_lua\nmath.randomseed($seed)\n#end_lua." > seed
 echo "Grounding..."
 time --format="%E, %K KB" clingo seed functions $sources -l > out/ground \
   || exit
-echo "% vim: syn=gringo" >> out/ground
+echo "% vim"": syn=gringo" >> out/ground
 echo "  ...done."
 echo "Solving..."
 time --format="%E, %K KB"\
  clingo out/ground $opts |\
   sed "s/) /)\n/g" > out/s100
-echo "% vim: syn=gringo" >> out/s100
+echo "% vim"": syn=gringo" >> out/s100
 echo "  ...done."

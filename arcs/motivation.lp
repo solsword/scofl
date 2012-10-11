@@ -163,12 +163,12 @@ motivated(S, Defense) :- motivated_by_defense(S, Defense).
 motivated(S, Nature) :- motivated_by_nature(S, Nature).
 
 % All actions must be motivated:
-%:- some_action(S), 0 { motivated(S, Any) } 0.
+:- some_action(S), 0 { motivated(S, Any) } 0, beginning(B), S != B.
 
 % But no one motivation should be used too much:
-%:- 5 { motivated_by_future_intent(S, Any) }.
-%:- 3 { motivated_by_history(S, Any) }.
-%:- 5 { motivated_by_reciprocation(S, Any) }.
-%:- 3 { motivated_by_self_interest(S, Any) }.
-%:- 3 { motivated_by_defense(S, Any) }.
-%:- 3 { motivated_by_nature(S, Any) }.
+:- 5 { motivated_by_future_intent(S, Any) }.
+:- 3 { motivated_by_history(S, Any) }.
+:- 5 { motivated_by_reciprocation(S, Any) }.
+:- 3 { motivated_by_self_interest(S, Any) }.
+:- 3 { motivated_by_defense(S, Any) }.
+:- 3 { motivated_by_nature(S, Any) }.

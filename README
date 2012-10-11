@@ -1,0 +1,11 @@
+scofl: Secret of Chrono Ogre Final Lagoon
+
+This code is designed to generate story and game content, ultimately it will
+attempt to generate something like one of the classic JRPGs (hence the title).
+This project involves several interoperating pieces:
+
+  - The arc generator: generates small story arcs involving a few characters
+    over a short period of time.
+  - The arc assembler: Specifies what kind of arcs to construct and then weaves
+    generated arcs together to create a larger story.
+  - ... some more stuff, I'm sure.

@@ -14,6 +14,8 @@ _initial(status, healthy; injured).
 % Relations:
 %  [imprisonment]
 %    captured_by free
+%  [love]
+%    love aloof
 
 relation(captured_by, C) :- character(C).
 singular(captured_by, C) :- character(C).
@@ -21,6 +23,14 @@ absence(captured_by, C, free) :- character(C).
 _object(captured_by, C, O) :- character(C), character(O), C != O.
 _initial(captured_by, C, O) :- character(C), character(O), C != O.
 _initially_absent(captured_by, C) :- character(C).
+
+relation(love, C) :- character(C).
+verb_relation(love).
+singular(love, C) :- character(C). % Yay biases!
+absence(love, C, aloof) :- character(C).
+_object(love, C, O) :- character(C), character(O), C != O.
+_initial(love, C, O) :- character(C), character(O), C != O.
+_initially_absent(love, C) :- character(C).
 
 % Competencies:
 %  fight travel use_item

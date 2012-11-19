@@ -6,6 +6,8 @@ parameter(travel, 1, actor, character).
 parameter(travel, 2, destination, location).
 parameter(travel, 3, lost, location).
 
+params_must_differ(travel, destination, lost).
+
 % Valorization:
 % <none>
 

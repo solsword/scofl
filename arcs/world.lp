@@ -32,6 +32,13 @@ allied(A, B) :- allied(B, A).
 
 :- allied(S, P), allied(S, A), support(S), protagonist(P), antagonist(A).
 
+enemies(P, A) :- protagonist(P), antagonist(A).
+enemies(B, A) :- enemies(A, B).
+
+{ enemies(S, C) : character(C) } 3 :- support(S).
+
+:- allied(A, B), enemies(A, B).
+
 { feud(Angry, Enemy) } :-
   character(Angry),
   character(Enemy),
@@ -63,6 +70,9 @@ active_situation(r(B..E-1)) :- beginning(B), ending(E).
 reaction_situation(r(S)) :- situation(r(S)).
 base_situation(S) :- situation(S), not reaction_situation(S).
 
+base_situation(S, S) :- base_situation(S).
+base_situation(r(S), S) :- reaction_situation(r(S)).
+
 next(N, N+1) :- base_situation(N), base_situation(N+1).
 % Reactions are linked back in:
 next(r(N), N+1) :- reaction_situation(r(N)), base_situation(N+1).
@@ -70,3 +80,5 @@ next(r(N), N+1) :- reaction_situation(r(N)), base_situation(N+1).
 after(Before, After) :- next(Before, After).
 after(Before, After) :- after(Before, Intermediate), after(Intermediate, After).
 after(S, r(S)) :- base_situation(S).
+
+after_not_reaction(Before, After) :- after(Before, After), After != r(Before).

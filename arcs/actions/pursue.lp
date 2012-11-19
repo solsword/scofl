@@ -7,6 +7,8 @@ parameter(pursue, 2, target, character).
 parameter(pursue, 3, destination, location).
 parameter(pursue, 4, lost, location).
 
+params_must_differ(pursue, destination, lost).
+
 % Valorization:
 harmful(A, Target) :- action(A, pursue), param(A, target, Target).
 
@@ -15,6 +17,11 @@ special_precondition(A, actor_near_target) :- action(A, pursue).
 precondition(A, competent(fight, Actor)) :- % more strenuous than travelling
   action(A, pursue),
   param(A, actor, Actor).
+precondition(A, impossible) :- % can't already be there
+  action(A, pursue),
+  param(A, actor, Actor),
+  param(A, destination, Destination),
+  situation(A, holds(at, Actor, Destination)).
 
 % Reactions:
 reaction_only(pursue).

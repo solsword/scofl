@@ -1,21 +1,21 @@
 #!/bin/sh
 if [ ! -d out ]; then mkdir out; fi
 seed=`head -c 2 /dev/urandom | hexdump -e '"%u"'`
-#seed=16737
-#seed=43828
-#seed=25043
-#seed=7533
+#seed=227
 var_actions=`ls -x actions/*.lp`
 var_states=`ls -x states/*.lp`
+var_plots=`ls -x plots/*.lp`
 sys_world="world.lp params.lp"
 sys_actions="activity.lp $var_actions"
 sys_states="states.lp $var_states"
+sys_plots="plots.lp $var_plots"
 sys_effects="effects.lp results.lp"
 sys_conditions="preconditions.lp"
 sys_motives="motivation.lp"
 core="$sys_world $sys_actions $sys_states $sys_effects $sys_conditions"
-sources="$core $sys_motives constraints.lp"
-sys_story="english.lp disp.lp order.lp"
+extras="$sys_motives $sys_plots"
+sources="$core $extras constraints.lp"
+sys_english="english.lp render.lp disp.lp order.lp"
 opts="-n 1 --rand-freq=0.05 --seed=$seed --restart-on-model"
 echo "Seed: $seed"
 echo "seed($seed).\n#begin_lua\nmath.randomseed($seed)\n#end_lua." > seed
@@ -25,18 +25,23 @@ time --format="%E, %K KB" clingo seed functions $sources -t > out/grounded \
 echo "% vim"": syn=gringo" >> out/grounded
 echo "  ...done."
 echo "Solving..."
-time --format="%E, %K KB"\
- clingo seed functions $sources $opts |\
+time --format="%E, %K KB" clingo seed functions $sources $opts > out/raw
+cat out/raw |\
   tail -n +2 |\
   head -n -7 |\
   sed "s/) /).\n/g" |\
   head -n -1 |\
   sort > out/solved
 echo "% vim"": syn=gringo" >> out/solved
+grep "internal_error" out/solved 2>&1 1> /dev/null
+if [ $? = 0 ]; then
+  echo "  ...error(s) detected:"
+  grep "internal_error" out/solved
+fi
 echo "  ...done."
 echo "Generating 'story' version..."
 time --format="%E, %K KB"\
- clingo out/solved $sys_story |\
+ clingo out/solved $sys_english |\
   tail -n +2 |\
   head -n -7 |\
   sed "s/) /).\n/g" |\
@@ -51,3 +56,7 @@ time --format="%E, %K KB"\
 #  sort > out/story
 echo "% vim"": syn=gringo" >> out/story
 echo "  ...done."
+## DEBUG:
+# clingo out/solved english.lp render.lp order.lp | tail -n +2 | head -n -7 | sed "s/) /).\n/g" | sort > t
+# clingo out/solved english.lp disp.lp render.lp order.lp | tail -n +2 | head -n -7 | sed "s/) /).\n/g" | sed "s/order(\([0-9]\),/00\1:/g" | sed "s/order(\([0-9][0-9]\),/0\1:/g" > t
+

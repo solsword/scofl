@@ -1,0 +1,12 @@
+sentence(1,"Cyrus tried to kill Dara, but Balkon rescued Dara from Cyrus and fled to Rulem!")
+    motive(r(1),feud("Balkon","Cyrus"))
+    motive(r(1),required_for(2))
+sentence(2,"Balkon killed Dara.")
+  motive(2,cruelty)
+sentence(3,"Cyrus traveled to Perea, but Balkon managed to pursue to Perea.")
+  motive(3,wanderlust)
+    motive(r(3),required_for(4))
+sentence(4,"Balkon attacked Cyrus.")
+  motive(4,feud("Balkon","Cyrus"))
+text("Cyrus tried to kill Dara, but Balkon rescued Dara from Cyrus and fled to Rulem! Balkon killed Dara. Cyrus traveled to Perea, but Balkon managed to pursue to Perea. Balkon attacked Cyrus.").
+% vim: syn=gringo

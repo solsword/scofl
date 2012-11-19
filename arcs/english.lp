@@ -1,166 +1,147 @@
-named(chr(1), "Ardhiel").
-named(chr(2), "Balkon").
-named(chr(3), "Camwyn").
-named(chr(4), "Devlin").
+% TODO: fix "tried to ... and fled to ... but ..."
+% String manipulation functions:
 
-named(itm(1), "Air Rod").
-named(itm(2), "Blue Mushroom").
-named(itm(3), "Captain's Sword").
+#begin_lua
+function join(...)
+  local t = {n=select('#', ...), ...}
+  result = nil
+  for i=1,t.n do
+    s = tostring(t[i])
+    if result == nil then
+      result = s
+    elseif s == "," or s == "." or s == "!" or s == ";" then
+      result = result .. s
+    else
+      result = result .. " " .. s
+    end
+  end
+  return result
+end
 
-named(loc(1), "Ambela").
-named(loc(2), "Bannerlith").
-named(loc(3), "Cortes Andres").
-named(loc(4), "Dwarfwatch").
+function plus_ed(verb)
+  verb = tostring(verb)
+  if verb:find("e", #verb, true) then
+    return verb .. "d"
+  else
+    return verb .. "ed"
+  end
+end
 
-sentence(S, c(SubjectName, VerbClause, ResultClause, ReactClause)) :-
-  param(S, actor, Actor),
-  named(Actor, SubjectName),
-  verbclause(S, VerbClause),
-  resultclause(S, ResultClause),
-  reactclause(S, ReactClause).
+function the(noun)
+  noun = tostring(noun)
+  return "the " .. noun
+end
 
-resultclause(S, c) :- result(S, success).
-resultclause(S, c("but an accident occurred.")) :- result(S, accident).
-resultclause(S, c("but ey failed.")) :- result(S, failure).
+function an(noun)
+  noun = tostring(noun)
+  if noun:find("[aeiou]") == 1 then
+    return "an " .. noun
+  else
+    return "a " .. noun
+  end
+end
+#end_lua.
 
-reactclause(S, c) :- situation(S), not some_reaction(S).
-reactclause(S, c("and someone reacted")) :- some_reaction(S).
+% -----
+% Nouns
+% -----
 
-reactclause(r(S), c) :- situation(r(S)).
+noun(C) :- character(C).
+noun(I) :- item(I).
+noun(L) :- location(L).
 
-%resultclause(S, c) :-
-%  result(S, success),
-%  not reaction(S).
-%
-%resultclause(S, c("but an accident occurred.")) :-
-%  result(S, accident),
-%  not reaction(S).
-%
-%resultclause(S, c("but ey failed.")) :-
-%  result(S, failure),
-%  not reaction(S).
+number(noun(N), singular) :- character(N).
+number(noun(N), singular) :- item(N).
+number(noun(N), numberless) :- location(N).
 
-%resultclause(S, c("but", Sentence)) :-
-%  result(S, success),
-%  reaction(S),
-%  result(r(S), success),
-%  sentence(r(S), Sentence).
-%
-%resultclause(S, c("but ey failed because", Sentence)) :-
-%  result(S, failure),
-%  reaction(S),
-%  result(r(S), success),
-%  sentence(r(S), Sentence).
-%
-%resultclause(S, c("and ey succeeded, since", Sentence)) :-
-%  result(S, success),
-%  reaction(S),
-%  result(r(S), failure),
-%  sentence(r(S), Sentence).
-%
-%resultclause(S, c("while", Sentence)) :-
-%  result(S, success),
-%  reaction(S),
-%  result(r(S), accident),
-%  sentence(r(S), Sentence).
+determined(noun(N)) :- item(N).
+undetermined(noun(N)) :- character(N).
+undetermined(noun(N)) :- location(N).
 
-altverbclause(defend; guard; give; flee; travel; pursue; rescue; escape; steal).
+definite(noun(N)) :- character(N).
+definite(noun(N)) :- item(N).
+definite(noun(N)) :- location(N).
 
-verbclause(S, c(Verb, Object)) :-
-  action(S, Verb),
-  param(S, target, Target),
-  named(Target, Object),
-  not altverbclause(Verb).
+gender(noun(chr(1)), female).
+gender(noun(chr(2)), male).
+gender(noun(chr(3)), male).
+gender(noun(chr(4)), female).
 
-verbclause(S, c(defend, Object, "from", Opponent)) :-
-  action(S, defend),
-  param(S, target, Target),
-  param(S, opponent, Opp),
-  named(Target, Object),
-  named(Opp, Opponent).
+gender(noun(N), neuter) :- item(N).
 
-verbclause(S, c(guard, Object, "from", Opponent)) :-
-  action(S, guard),
-  param(S, target, Target),
-  param(S, opponent, Opp),
-  named(Target, Object),
-  named(Opp, Opponent).
+gender(noun(N), location) :- location(N).
 
-verbclause(S, c(give, Item, "to", Object)) :-
-  action(S, give),
-  param(S, target, Target),
-  param(S, item, It),
-  named(Target, Object),
-  named(It, Item).
+name(noun(chr(1)), "Awyn").
+name(noun(chr(2)), "Balkon").
+name(noun(chr(3)), "Cyrus").
+name(noun(chr(4)), "Dara").
+                 
+name(noun(itm(1)), "Farboots").
+name(noun(itm(2)), "Gnomehammer").
+name(noun(itm(3)), "Heavy Edge").
+                 
+name(noun(loc(1)), "Perea").
+name(noun(loc(2)), "Quarr").
+name(noun(loc(3)), "Rulem").
+name(noun(loc(4)), "Somyr").
 
-verbclause(S, c(travel, "from", From, "to", To)) :-
-  action(S, travel),
-  action(S, Verb),
-  param(S, destination, Destination),
-  param(S, actor, Actor),
-  situation(S, holds(at, Actor, Start)),
-  named(Start, From),
-  named(Destination, To).
+% Determination:
 
-verbclause(S, c(flee, "to", To)) :-
-  action(S, flee),
-  action(S, Verb),
-  param(S, destination, Destination),
-  named(Destination, To).
+determined(Noun, Name) :- name(Noun, Name), undetermined(Noun).
+determined(Noun, @the(Name)) :-
+  name(Noun, Name),
+  definite(Noun),
+  determined(Noun).
+determined(Noun, @an(Name)) :-
+  name(Noun, Name),
+  indefinite(Noun),
+  determined(Noun).
 
-verbclause(S, c(pursue, Object, "to", To)) :-
-  action(S, pursue),
-  param(S, target, Target),
-  param(S, destination, Destination),
-  named(Target, Object),
-  named(Destination, To).
+% -----
+% Verbs
+% -----
 
-verbclause(S, c(rescue, Object, "from", Aggressor, "and flee to", To)) :-
-  action(S, rescue),
-  param(S, target, Target),
-  param(S, opponent, Opponent),
-  param(S, destination, Destination),
-  named(Target, Object),
-  named(Opponent, Aggressor),
-  named(Destination, To).
+% Note: everything's singular for now, so handling number agreement isn't
+% implemented... If you use present tense it'll be wrong though.
+% TODO: handle number agreement.
 
-verbclause(S, c(escape, "from", Aggressor, "and flee to", To)) :-
-  action(S, escape),
-  param(S, actor, Actor),
-  param(S, opponent, Opponent),
-  param(S, destination, Destination),
-  named(Opponent, Aggressor),
-  named(Destination, To).
+verb(A) :- atype(A).
+verb(give).
 
-verbclause(S, c(steal, Object, from, Owner)) :-
-  action(S, steal),
-  param(S, target, Target),
-  situation(S, holds(controlled_by, Target, Victim)),
-  named(Target, Object),
-  named(Victim, Owner).
+% Not the full English spectrum:
+tense(present; past; infinitive).
 
-% Motives:
+% Each verb has exactly one form in each tense:
+%rs(Tense, V) :- tense(Tense), verb(V).
+%:- rs(T, V), { tense(T, verb(V), X) } 0.
+%:- rs(T, V), 2 { tense(T, verb(V), X) }.
+:- tense(Tense), verb(V), { tense(Tense, verb(V), X) } 0.
+:- tense(Tense), verb(V), 2 { tense(Tense, verb(V), X) }.
 
-motive(S, required_for(F)) :- motivated(S, required_for(F)).
-motive(S, revenge(F)) :- motivated(S, revenge(F)).
-motive(S, gratitude(F)) :- motivated(S, gratitude(F)).
-motive(S, self_interest) :- motivated(S, self_interest).
-motive(S, defend_against(R)) :- motivated(S, defend_against(R)).
-motive(S, cruelty) :- motivated(S, cruelty).
-motive(S, kindness) :- motivated(S, kindness).
-motive(S, wanderlust) :- motivated(S, wanderlust).
+% Present
+% Verbs must be defined in their present tense:
+tense(present, verb(V), V) :- verb(V).
 
-motive(S, feud(Angry, Hated)) :-
-  motivated(S, feud(A, H)),
-  named(A, Angry),
-  named(H, Hated).
+% Past
+{ tense(past, verb(V), Ved) } :- verb(V), Ved := @plus_ed(V). % Default.
 
-motive(S, friendship(Friendly, Friend)) :-
-  motivated(S, friendship(A, H)),
-  named(A, Friendly),
-  named(H, Friend).
+tense(past, verb(break), broke).
+tense(past, verb(flee), fled).
+tense(past, verb(give), gave).
+tense(past, verb(steal), stole).
+tense(past, verb(is), was).
 
-motive(S, friendship(Friendly, Friend)) :-
-  motivated(S, friendship(A, H)),
-  named(A, Friendly),
-  named(H, Friend).
+% Infinitive
+% (Needed for state phrases...)
+{ tense(infinitive, verb(V), @join("to", V)) } :- verb(V). % Default.
+
+tense(infinitive, verb(is), "to be").
+
+% ------------------------
+% Verb Phrase Construction
+% ------------------------
+
+verb_phrase(Phrase, Tense, Verb, Object) :-
+  tense(Tense, Verb, V),
+  determined(Object, O),
+  Phrase := @join(V, O).

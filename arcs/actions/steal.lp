@@ -54,7 +54,9 @@ _reaction(R, active, rxn(steal, Other, Target)) :-
 _reaction(R, active, rxn(steal, Other, Item)) :-
   action(R, give),
   param(R, item, Item),
-  character(Other).
+  param(R, target, Recipient),
+  character(Other),
+  Other != Recipient.
 
 % Effects:
 _effect(A, causes(controlled_by, Target, Actor)) :-

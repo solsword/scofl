@@ -38,6 +38,8 @@ stype(Type) :- _value(State, Type).
 
 rtype(Type) :- relation(Type, Subject).
 
+preposition_relation(Rel) :- rtype(Rel), not verb_relation(Rel).
+
 has_absence(Rel, Subject) :- absence(Rel, Subject, Anything).
 
 internal_error(

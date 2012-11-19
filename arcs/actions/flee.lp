@@ -6,6 +6,8 @@ parameter(flee, 1, actor, character).
 parameter(flee, 2, destination, location).
 parameter(flee, 3, lost, location).
 
+params_must_differ(flee, destination, lost).
+
 % Valorization:
 % <none>
 

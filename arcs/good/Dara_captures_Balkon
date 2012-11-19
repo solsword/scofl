@@ -1,0 +1,15 @@
+sentence(1,"Balkon traveled to Somyr, but Dara managed to pursue to Somyr.")
+    motive(r(1),required_for(2))
+sentence(2,"Although Balkon tried to flee to Perea, Dara managed to capture Balkon.")
+  motive(2,cruelty)
+    motive(r(2),defend_against(2))
+sentence(3,"Balkon escaped from Dara to Perea, but Dara managed to pursue to Perea.")
+  motive(3,revenge(2))
+  motive(3,revenge(r(1)))
+  motive(3,self_interest)
+    motive(r(3),defend_against(3))
+    motive(r(3),required_for(4))
+sentence(4,"Dara captured Balkon.")
+  motive(4,revenge(3))
+text("Balkon traveled to Somyr, but Dara managed to pursue to Somyr. Although Balkon tried to flee to Perea, Dara managed to capture Balkon. Balkon escaped from Dara to Perea, but Dara managed to pursue to Perea. Dara captured Balkon.").
+% vim: syn=gringo

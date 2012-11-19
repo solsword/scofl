@@ -13,6 +13,13 @@ some_action(S) :- action(S, Any).
 1 { param(S, Name, L) : location(L) } 1 :-
   action(S, Type), parameter(Type, N, Name, location).
 
+% Parameter difference restriction:
+:-
+  action(S, Type),
+  param(S, P1, Val),
+  param(S, P2, Val),
+  params_must_differ(Type, P1, P2).
+
 % Reflexivity restriction:
 :-
   action(S, Type),

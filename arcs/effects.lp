@@ -1,6 +1,8 @@
 % Three types of effect possibilities:
 % _effect, _permitted, and _accident
 
+% TODO: Add things like moving defenders/rescuers even on failed attempts.
+
 has_effect(S) :- _effect(S, E).
 has_accident(S) :- _accident(S, A).
 
@@ -42,6 +44,10 @@ effect(S, Effect, accidental) :-
 effect(S, E1, Intent) :- effect(S, both(E1, E2), Intent).
 effect(S, E2, Intent) :- effect(S, both(E1, E2), Intent).
 
+% Label as compound all (achievable) compound effects (obivously there are
+% infinite theoretical compound effects):
+compound(both(X, Y)) :- effect(S, both(X, Y), Intent).
+
 % Effects influence state:
 % (inertia is handled in states.lp)
 
@@ -54,6 +60,10 @@ result_of(causes(Predicate, Subject), holds(Predicate, Subject)) :-
   state(State, Subject),
   _value(State, Predicate).
 
+result_of(causes(Predicate, Subject), holds(Predicate, Subject)) :-
+  relation(Rel, Subject),
+  absence(Rel, Subject, Predicate).
+
 result_of(
   causes(Predicate, Subject, Object),
   holds(Predicate, Subject, Object)
@@ -63,6 +73,7 @@ result_of(
 
 internal_error("Invalid effect.", S, Effect) :-
   effect(S, Effect, Intent),
+  not compound(Effect),
   0 { result_of(Effect, Anything) } 0.
 
 % TODO: Add support for wider causes (would need wider states as well)?

@@ -1,0 +1,15 @@
+sentence(1,"Although Balkon tried to rescue Cyrus from Awyn and fled to Somyr, Awyn managed to kill Cyrus.")
+    motive(r(1),feud("Balkon","Awyn"))
+sentence(2,"Balkon escaped from Awyn to Perea.")
+  motive(2,feud("Balkon","Awyn"))
+  motive(2,self_interest)
+sentence(3,"Awyn traveled to Perea.")
+  motive(3,fear_of("Cyrus"))
+  motive(3,fear_of("Dara"))
+  motive(3,required_for(4))
+sentence(4,"Awyn tried to attack Balkon, but Balkon fled to Rulem.")
+  motive(4,revenge(2))
+  motive(4,revenge(r(1)))
+    motive(r(4),defend_against(4))
+text("Although Balkon tried to rescue Cyrus from Awyn and fled to Somyr, Awyn managed to kill Cyrus. Balkon escaped from Awyn to Perea. Awyn traveled to Perea. Awyn tried to attack Balkon, but Balkon fled to Rulem.").
+% vim: syn=gringo

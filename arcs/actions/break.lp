@@ -6,10 +6,16 @@ parameter(break, 1, actor, character).
 parameter(break, 2, target, item).
 
 % Valorization:
+harmful(A, Victim) :-
+  action(A, break),
+  param(A, target, Target),
+  situation(A, holds(controlled_by, Target, Victim)),
+  situation(A, holds(owned_by, Target, Owner)),
+  allied(Victim, Owner).
 harmful(A, Owner) :-
   action(A, break),
-  param(A, target, Item),
-  situation(A, holds(owned_by, Item, Owner)).
+  param(A, target, Target),
+  situation(A, holds(owned_by, Target, Owner)).
 
 % Preconditions:
 special_precondition(A, actor_colocated_with_target) :- action(A, break).

@@ -1,0 +1,15 @@
+sentence(1,"Cyrus tried to kill Awyn, but Dara defended Awyn from Cyrus.")
+    motive(r(1),defend_against(1))
+sentence(2,"Although Dara tried to rescue Awyn from Cyrus and fled to Somyr, Cyrus managed to kill Awyn.")
+  motive(2,feud("Cyrus","Awyn"))
+    motive(r(2),defend_against(2))
+sentence(3,"Dara tried to break the Farboots, but Cyrus stole the Farboots from Dara.")
+  motive(3,feud("Dara","Balkon"))
+    motive(r(3),revenge(r(1)))
+    motive(r(3),revenge(r(2)))
+sentence(4,"Dara escaped from Cyrus to Somyr.")
+  motive(4,cruelty)
+  motive(4,revenge(r(3)))
+  motive(4,self_interest)
+text("Cyrus tried to kill Awyn, but Dara defended Awyn from Cyrus. Although Dara tried to rescue Awyn from Cyrus and fled to Somyr, Cyrus managed to kill Awyn. Dara tried to break the Farboots, but Cyrus stole the Farboots from Dara. Dara escaped from Cyrus to Somyr.").
+% vim: syn=gringo

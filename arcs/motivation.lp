@@ -61,6 +61,9 @@ surprising(S) :-
 % Limit surprising events:
 :- 3 { surprising(S) }.
 
+% The first event mustn't be surprising:
+:- beginning(B), surprising(B).
+
 % Motivation:
 
 % Helping achieve preconditions for your allies (which includes yourself) is
@@ -186,26 +189,28 @@ motivated_by_defense(r(S), defend_against(S)) :-
   BS - B < 2.
 % ^ Wanderlust travel should only happen towards the beginning of the story.
 
-{ motivated_by_dislike(S, dislike_of(Enemy)) } :-
+{ motivated_by_fear(S, fear_of(Enemy)) } :-
   param(S, actor, Fearful),
   action(S, travel),
   situation(S, holds(at, Fearful, Place)),
   situation(S, holds(at, Enemy, Place)),
   situation(S, competent(fight, Enemy)),
   established(S, Enemy),
+  Enemy != Fearful,
   1 { enemies(Fearful, Enemy), has_harmed(S, Enemy, Fearful) }.
 
 % All types of motivation count:
-motivated(S, Intent) :- motivated_by_future_intent(S, Intent).
+% Future intent motivation is disabled 'cause it's broken in various ways.
+%motivated(S, Intent) :- motivated_by_future_intent(S, Intent).
 motivated(S, History) :- motivated_by_history(S, History).
 motivated(S, Action) :- motivated_by_reciprocation(S, Action).
 motivated(S, self_interest) :- motivated_by_self_interest(S).
 motivated(S, Defense) :- motivated_by_defense(S, Defense).
 motivated(S, Nature) :- motivated_by_nature(S, Nature).
-motivated(S, Fear) :- motivated_by_dislike(S, Fear).
+motivated(S, Fear) :- motivated_by_fear(S, Fear).
 
 % All actions must be motivated:
-:- some_action(S), 0 { motivated(S, Any) } 0, beginning(B), S != B.
+:- some_action(S), 0 { motivated(S, Any) } 0.
 
 % But no one motivation should be used too much:
 :- 4 { motivated_by_future_intent(S, Any) }.
@@ -214,7 +219,7 @@ motivated(S, Fear) :- motivated_by_dislike(S, Fear).
 :- 4 { motivated_by_self_interest(S) }.
 :- 3 { motivated_by_defense(S, Any) }.
 :- 3 { motivated_by_nature(S, Any) }.
-:- 3 { motivated_by_dislike(S, Any) }.
+:- 3 { motivated_by_fear(S, Any) }.
 
 :- 2 { motivated_by_nature(S, cruelty) }.
 :- 2 { motivated_by_nature(S, wanderlust) }.

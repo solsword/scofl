@@ -94,4 +94,5 @@ _accident(
   param(A, actor, Actor),
   param(A, target, Target),
   situation(A, holds(at, Target, Nearby)),
-  situation(A, holds(captured_by, Target, Captor)).
+  situation(A, holds(captured_by, Target, Captor)),
+  Actor != Captor.

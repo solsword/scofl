@@ -418,6 +418,6 @@ motive(S, friendship(Friendly, Friend)) :-
   name(noun(A), Friendly),
   name(noun(H), Friend).
 
-motive(S, dislike_of(Enemy)) :-
-  motivated(S, dislike_of(E)),
+motive(S, fear_of(Enemy)) :-
+  motivated(S, fear_of(E)),
   name(noun(E), Enemy).

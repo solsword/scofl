@@ -45,6 +45,8 @@ enemies(B, A) :- enemies(A, B).
   not allied(Angry, Enemy),
   Angry != Enemy.
 
+enemies(A, B) :- feud(A, B).
+
 { friendship(Friendly, Friend) } :-
   allied(Friendly, Friend),
   Friendly != Friend.

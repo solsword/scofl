@@ -16,6 +16,7 @@ core="$sys_world $sys_actions $sys_states $sys_effects $sys_conditions"
 extras="$sys_motives $sys_plots"
 sources="$core $extras constraints.lp"
 sys_english="english.lp render.lp disp.lp order.lp"
+sys_minstrel="english.lp minstrelgraph.lp minstrelschemata.lp minstrelcom.lp"
 opts="-n 1 --rand-freq=0.05 --seed=$seed --restart-on-model"
 echo "Seed: $seed"
 echo "seed($seed).\n#begin_lua\nmath.randomseed($seed)\n#end_lua." > seed
@@ -55,6 +56,16 @@ time --format="%E, %K KB"\
   sed "s/^[0-9][0-9]4:\(.\+\)).$/      \1/" > out/story
 #  sort > out/story
 echo "% vim"": syn=gringo" >> out/story
+echo "  ...done."
+echo "Generating Skald version..."
+echo "Arc" > out/minstrelgraph
+time --format="%E, %K KB"\
+ clingo out/solved $sys_minstrel -V |\
+  tail -n +2 |\
+  head -n -7 |\
+  sed "s/) /).\n/g" |\
+  head -n -1 |\
+  sort >> out/minstrelgraph
 echo "  ...done."
 ## DEBUG:
 # clingo out/solved english.lp render.lp order.lp | tail -n +2 | head -n -7 | sed "s/) /).\n/g" | sort > t

@@ -34,6 +34,16 @@ stype(Type) :- _value(State, Type).
   situation(B, holds(Val, Subject)) : _initial(State, Val)
 } 1 :- beginning(B), state(State, Subject).
 
+internal_error(
+  "Two state types define the same value.",
+  St1,
+  St2,
+  Val
+) :-
+  _value(St1, Val),
+  _value(St2, Val),
+  St1 != St2.
+
 % Relations:
 
 rtype(Type) :- relation(Type, Subject).

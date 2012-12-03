@@ -2,7 +2,7 @@
 %{ plot(P) : ptype(P) }.
 % DEBUG: ALL THE PLOTS!
 %plot(P) :- ptype(P).
-%plot(rescue).
+plot(rescue).
 
 % Bind parameters for chosen plots:
 1 { plot_param(Plot, Name, C) : character(C) } 1 :-

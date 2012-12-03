@@ -9,7 +9,7 @@ function join(...)
     s = tostring(t[i])
     if result == nil then
       result = s
-    elseif s == "," or s == "." or s == "!" or s == ";" then
+    elseif s == "," or s == "." or s == "!" or s == ";" or s == ":" then
       result = result .. s
     else
       result = result .. " " .. s
@@ -55,15 +55,15 @@ number(noun(N), singular) :- item(N).
 number(noun(N), numberless) :- location(N).
 
 determined(noun(N)) :- item(N).
-undetermined(noun(N)) :- character(N).
-undetermined(noun(N)) :- location(N).
+determined(noun(N)) :- character(N).
+determined(noun(N)) :- location(N).
 
 definite(noun(N)) :- character(N).
 definite(noun(N)) :- item(N).
 definite(noun(N)) :- location(N).
 
 gender(noun(chr(1)), female).
-gender(noun(chr(2)), male).
+gender(noun(chr(2)), female).
 gender(noun(chr(3)), male).
 gender(noun(chr(4)), female).
 
@@ -71,19 +71,19 @@ gender(noun(N), neuter) :- item(N).
 
 gender(noun(N), location) :- location(N).
 
-name(noun(chr(1)), "Awyn").
-name(noun(chr(2)), "Balkon").
-name(noun(chr(3)), "Cyrus").
-name(noun(chr(4)), "Dara").
+name(noun(chr(1)), "knight").
+name(noun(chr(2)), "princess").
+name(noun(chr(3)), "merchant").
+name(noun(chr(4)), "witch").
                  
 name(noun(itm(1)), "Farboots").
 name(noun(itm(2)), "Gnomehammer").
 name(noun(itm(3)), "Heavy Edge").
                  
-name(noun(loc(1)), "Perea").
-name(noun(loc(2)), "Quarr").
-name(noun(loc(3)), "Rulem").
-name(noun(loc(4)), "Somyr").
+name(noun(loc(1)), "castle").
+name(noun(loc(2)), "couryard").
+name(noun(loc(3)), "forest").
+name(noun(loc(4)), "lake").
 
 % Determination:
 

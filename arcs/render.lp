@@ -11,10 +11,13 @@ paragraph(Start, End, @join(Head, Tail)) :-
   paragraph(Start, Start, Head),
   paragraph(Start+1, End, Tail).
 
-text(T) :-
-  paragraph(B, E-1, T),
+text(@join(@join("At the", Loc, ":"), T)) :-
   beginning(B),
-  ending(E).
+  ending(E),
+  paragraph(B, E-1, T),
+  param(B, actor, Actor),
+  situation(B, holds(at, Actor, Location)),
+  determined(noun(Location), Loc).
 
 % -----------
 % Punctuation
@@ -338,10 +341,11 @@ verb_clause(S, Tense, Clause) :-
   param(S, target, Target),
   param(S, destination, Destination),
   tense(Tense, verb(rescue), V),
+  tense(Tense, verb(flee), F),
   determined(noun(Opponent), O),
   determined(noun(Target), T),
   determined(noun(Destination), D),
-  Clause := @join(V, T, "from", O, "and fled to", D).
+  Clause := @join(V, T, "from", O, "and", F, "to", D).
 
 verb_clause(S, Tense, Clause) :-
   action(S, steal),

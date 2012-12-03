@@ -1,0 +1,13 @@
+sentence(1,"Awyn tried to break the Farboots, but Balkon guarded the Farboots from Awyn.")
+  motive(1,feud("Awyn","Balkon"))
+    motive(r(1),defend_against(1))
+sentence(2,"Although Awyn tried to flee to Quarr, Balkon managed to attack Awyn.")
+  motive(2,revenge(1))
+    motive(r(2),defend_against(2))
+sentence(3,"Balkon stole the Farboots from Awyn!")
+  motive(3,feud("Balkon","Awyn"))
+  motive(3,revenge(1))
+sentence(4,"Awyn traveled to Quarr.")
+  motive(4,fear_of("Balkon"))
+text("Awyn tried to break the Farboots, but Balkon guarded the Farboots from Awyn. Although Awyn tried to flee to Quarr, Balkon managed to attack Awyn. Balkon stole the Farboots from Awyn! Awyn traveled to Quarr.").
+% vim: syn=gringo

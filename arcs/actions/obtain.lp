@@ -6,7 +6,9 @@ parameter(obtain, 1, actor, character).
 parameter(obtain, 2, target, item).
 
 % Valorization:
-% <none>
+helpful(S, Actor) :-
+  action(S, obtain),
+  param(S, actor, Actor).
 
 % Preconditions:
 special_precondition(A, actor_colocated_with_target) :- action(A, obtain).

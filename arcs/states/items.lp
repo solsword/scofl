@@ -8,6 +8,7 @@
 state(condition, I) :- item(I).
 _value(condition, whole; broken; destroyed).
 _initial(condition, whole; broken).
+_default(condition, whole).
 
 relation(owned_by, I) :- item(I).
 singular(owned_by, I) :- item(I).

@@ -18,7 +18,6 @@ _initial(at, C, L) :- character(C), location(L).
 _object(at, I, L) :- item(I), location(L).
 _initial(at, I, L) :- item(I), location(L).
 
-
 relation(accessible_from, L) :- location(L).
 absence(accessible_from, L, inaccessible) :- location(L).
 _object(accessible_from, L, O) :- location(L), location(O), L != O.

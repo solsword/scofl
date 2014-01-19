@@ -5,6 +5,7 @@
 state(status, C) :- character(C).
 _value(status, healthy; injured; dead).
 _initial(status, healthy; injured).
+_default(status, healthy).
 
 % Dead people don't get involved any more:
 :-
@@ -23,14 +24,17 @@ absence(captured_by, C, free) :- character(C).
 _object(captured_by, C, O) :- character(C), character(O), C != O.
 _initial(captured_by, C, O) :- character(C), character(O), C != O.
 _initially_absent(captured_by, C) :- character(C).
+_default_absent(captured_by).
 
 relation(love, C) :- character(C).
 verb_relation(love).
 singular(love, C) :- character(C). % Yay biases!
 absence(love, C, aloof) :- character(C).
 _object(love, C, O) :- character(C), character(O), C != O.
-_initial(love, C, O) :- character(C), character(O), C != O.
+% TODO: reenable love after making it do something!
+%_initial(love, C, O) :- character(C), character(O), C != O.
 _initially_absent(love, C) :- character(C).
+_default_absent(love).
 
 % Competencies:
 %  fight travel use_item

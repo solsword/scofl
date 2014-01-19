@@ -1,6 +1,10 @@
 #!/bin/sh
 if [ ! -d out ]; then mkdir out; fi
 seed=`head -c 2 /dev/urandom | hexdump -e '"%u"'`
+s_ground=
+s_solve=yes
+s_story=yes
+s_Skald=
 #seed=227
 var_actions=`ls -x actions/*.lp`
 var_states=`ls -x states/*.lp`
@@ -15,58 +19,136 @@ sys_motives="motivation.lp"
 core="$sys_world $sys_actions $sys_states $sys_effects $sys_conditions"
 extras="$sys_motives $sys_plots"
 sources="$core $extras constraints.lp"
-sys_english="english.lp render.lp disp.lp order.lp"
-sys_minstrel="english.lp minstrelgraph.lp minstrelschemata.lp minstrelcom.lp"
-opts="-n 1 --rand-freq=0.05 --seed=$seed --restart-on-model"
+sys_english="engfunc english.lp render.lp order.lp"
+#sys_english="engfunc english.lp render.lp disp.lp order.lp"
+sys_minstrel="engfunc english.lp "`ls -x minstrel*.lp`
+sys_m_nouns="engfunc english.lp minstrelnouns.lp"
+sys_m_goals="engfunc minstrelgoals.lp minstrelacttrans.lp"
+sys_m_acts="engfunc minstrelacts.lp minstrelacttrans.lp"
+sys_m_states="engfunc minstrelstates.lp"
+sys_m_edges="engfunc minstreledges.lp"
+sys_m_check="engfunc minstrelschemata.lp"
+opts="-n 1 --asp09 --rand-freq=0.05 --seed=$seed --restart-on-model"
 echo "Seed: $seed"
 echo "seed($seed).\n#begin_lua\nmath.randomseed($seed)\n#end_lua." > seed
-echo "Grounding..."
-time --format="%E, %K KB" clingo seed functions $sources -t > out/grounded \
-  || exit
-echo "% vim"": syn=gringo" >> out/grounded
-echo "  ...done."
-echo "Solving..."
-time --format="%E, %K KB" clingo seed functions $sources $opts > out/raw
-cat out/raw |\
-  tail -n +2 |\
-  head -n -7 |\
-  sed "s/) /).\n/g" |\
-  head -n -1 |\
-  sort > out/solved
-echo "% vim"": syn=gringo" >> out/solved
-grep "internal_error" out/solved 2>&1 1> /dev/null
-if [ $? = 0 ]; then
-  echo "  ...error(s) detected:"
-  grep "internal_error" out/solved
+if [ ${s_ground}X != X ]; then
+  echo "Grounding..."
+  time --format="%E, %K KB" clingo seed functions $sources -t > out/grounded \
+    || exit
+  echo "% vim"": syn=gringo" >> out/grounded
+  echo "  ...done."
 fi
-echo "  ...done."
-echo "Generating 'story' version..."
-time --format="%E, %K KB"\
- clingo out/solved $sys_english |\
-  tail -n +2 |\
-  head -n -7 |\
-  sed "s/) /).\n/g" |\
-  sed "s/order(\([0-9]\),/00\1:/g" |\
-  sed "s/order(\([0-9][0-9]\),/0\1:/g" |\
-  head -n -1 |\
-  sort |\
-  sed "s/^[0-9][0-9]1:\(.\+\)).$/\1/" |\
-  sed "s/^[0-9][0-9]2:\(.\+\)).$/  \1/" |\
-  sed "s/^[0-9][0-9]3:\(.\+\)).$/    \1/" |\
-  sed "s/^[0-9][0-9]4:\(.\+\)).$/      \1/" > out/story
-#  sort > out/story
-echo "% vim"": syn=gringo" >> out/story
-echo "  ...done."
-echo "Generating Skald version..."
-echo "Arc" > out/minstrelgraph
-time --format="%E, %K KB"\
- clingo out/solved $sys_minstrel -V |\
-  tail -n +2 |\
-  head -n -7 |\
-  sed "s/) /).\n/g" |\
-  head -n -1 |\
-  sort >> out/minstrelgraph
-echo "  ...done."
+if [ ${s_solve}X != X ]; then
+  echo "Solving..."
+  time --format="%E, %K KB" clingo seed functions $sources $opts |\
+    head -n 1 > out/raw
+  cat out/raw |\
+    sed "s/). /).\n/g" |\
+    head -n -1 |\
+    sort > out/solved
+  echo "% vim"": syn=gringo" >> out/solved
+  echo "  ...verifying..."
+  grep "internal_error" out/solved 2>&1 1> /dev/null
+  if [ $? = 0 ]; then
+    echo "  ...error(s) detected:"
+    grep "internal_error" out/solved
+  fi
+  echo "  ...done."
+fi
+if [ ${s_story}X != X ]; then
+  echo "Generating 'story' version..."
+  time --format="%E, %K KB"\
+   clingo -n 1 --asp09 out/solved $sys_english |\
+    head -n 1 |\
+    sed "s/). /).\n/g" |\
+    head -n -1 |\
+    sort > out/engsolved
+  echo "% vim"": syn=gringo" >> out/engsolved
+  grep "order(" out/engsolved |\
+    sed "s/order(\([0-9]\),/00\1:/g" |\
+    sed "s/order(\([0-9][0-9]\),/0\1:/g" |\
+    sort |\
+    sed "s/^[0-9][0-9]0:\(.\+\)).$/\1/" |\
+    sed "s/^[0-9][0-9]1:\(.\+\)).$/\1/" |\
+    sed "s/^[0-9][0-9]2:\(.\+\)).$/  \1/" |\
+    sed "s/^[0-9][0-9]3:\(.\+\)).$/    \1/" |\
+    sed "s/^[0-9][0-9]4:\(.\+\)).$/      \1/" > out/events
+  echo "% vim"": syn=gringo" >> out/events
+  # writes out/story and out/story.tex
+  vim -R -X -E -s -u NONE -S events2story.vim out/events
+  cd out; pdflatex story.tex 2>1 > /dev/null; cd ..
+#  grep -v "motive" < out/events |\
+#    awk -v RS="\"\)\npreamble\([0-9],\"" -v ORS=" " "{print}" |\
+#    awk -v RS="\"\)\nsentence\([0-9],\"" -v ORS=" " "{print}" |\
+#    #sed "s/\")$//" |\
+#    #sed "s/preamble([0-9],\"//" |\
+#    #sed "s/sentence([0-9],\"//" |\
+#    head -n -2 > out/story
+  #  sort > out/story
+  echo "  ...done."
+fi
+if [ ${s_Skald}X != X ]; then
+  echo "Generating Skald version..."
+  echo "  ...finding nouns..."
+  time --format="%E, %K KB"\
+   clingo out/solved $sys_m_nouns |\
+    tail -n +2 |\
+    head -n -7 |\
+    sed "s/) /).\n/g" |\
+    head -n -1 |\
+    sort > out/mg-nouns
+  echo "  ...finding goals..."
+  time --format="%E, %K KB"\
+   clingo out/mg-nouns $sys_m_goals |\
+    tail -n +2 |\
+    head -n -7 |\
+    sed "s/) /).\n/g" |\
+    head -n -1 |\
+    sort > out/mg-goals
+  echo "  ...finding acts..."
+  time --format="%E, %K KB"\
+   clingo out/mg-goals $sys_m_acts |\
+    tail -n +2 |\
+    head -n -7 |\
+    sed "s/) /).\n/g" |\
+    head -n -1 |\
+    sort > out/mg-acts
+  echo "  ...finding states..."
+  time --format="%E, %K KB"\
+   clingo out/mg-acts $sys_m_states |\
+    tail -n +2 |\
+    head -n -7 |\
+    sed "s/) /).\n/g" |\
+    head -n -1 |\
+    sort > out/mg-states
+  echo "  ...finding edges..."
+  time --format="%E, %K KB"\
+   clingo out/mg-states $sys_m_edges |\
+    tail -n +2 |\
+    head -n -7 |\
+    sed "s/) /).\n/g" |\
+    head -n -1 |\
+    sort > out/mg-edges
+  echo "  ...verifying..."
+  time --format="%E, %K KB"\
+   clingo out/mg-edges $sys_m_states |\
+    tail -n +2 |\
+    head -n -7 |\
+    sed "s/) /).\n/g" |\
+    head -n -1 |\
+    sort > out/mg-final
+  echo "  ...finalizing..."
+  echo "Arc" > out/minstrelgraph
+  grep "_command" < out/mg-final |\
+    sed "s/noun_command/A/g" |\
+    sed "s/node_command/B/g" |\
+    sed "s/edge_command/C/g" |\
+    sed "s/slot_command/D/g" |\
+    sort |\
+    sed "s/^[^\"]\+\"//g" |\
+    sed "s/\"[^\"]\+$//g" >> out/minstrelgraph
+  echo "  ...done."
+fi
 ## DEBUG:
 # clingo out/solved english.lp render.lp order.lp | tail -n +2 | head -n -7 | sed "s/) /).\n/g" | sort > t
 # clingo out/solved english.lp disp.lp render.lp order.lp | tail -n +2 | head -n -7 | sed "s/) /).\n/g" | sed "s/order(\([0-9]\),/00\1:/g" | sed "s/order(\([0-9][0-9]\),/0\1:/g" > t

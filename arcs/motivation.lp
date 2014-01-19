@@ -4,6 +4,18 @@
 % TODO: feuds with non-involved characters?
 % TODO: FIX (or remove?) required_for!
 
+appears(Thing) :- param(S, P, Thing).
+
+:-
+  appears(Thing),
+  situation(S, holds(Rel, Thing, Other)),
+  not appears(Other).
+
+:-
+  appears(Thing),
+  situation(S, holds(Rel, Other, Thing)),
+  not appears(Other).
+
 involved(S, chr(C)) :- param(S, P, chr(C)).
 
 % Characters that are present in the beginning are established:
@@ -179,15 +191,13 @@ motivated_by_defense(r(S), defend_against(S)) :-
   Kind != Beneficiary,
   not surprising(S).
 
-{ motivated_by_nature(S, wanderlust) } :-
-  param(S, actor, Restless),
+{ motivated_by_nature(B, wanderlust) } :-
+  param(B, actor, Restless),
   nature(Restless, restless),
-  action(S, travel),
-  not surprising(S),
-  beginning(B),
-  base_situation(S, BS),
-  BS - B < 2.
-% ^ Wanderlust travel should only happen towards the beginning of the story.
+  action(B, travel),
+  not surprising(B),
+  beginning(B).
+% ^ Wanderlust travel can only happen as the first action.
 
 { motivated_by_fear(S, fear_of(Enemy)) } :-
   param(S, actor, Fearful),

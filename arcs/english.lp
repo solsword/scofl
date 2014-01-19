@@ -1,50 +1,6 @@
-% TODO: fix "tried to ... and fled to ... but ..."
-% String manipulation functions:
-
-#begin_lua
-function join(...)
-  local t = {n=select('#', ...), ...}
-  result = nil
-  for i=1,t.n do
-    s = tostring(t[i])
-    if result == nil then
-      result = s
-    elseif s == "," or s == "." or s == "!" or s == ";" or s == ":" then
-      result = result .. s
-    else
-      result = result .. " " .. s
-    end
-  end
-  return result
-end
-
-function plus_ed(verb)
-  verb = tostring(verb)
-  if verb:find("e", #verb, true) then
-    return verb .. "d"
-  else
-    return verb .. "ed"
-  end
-end
-
-function the(noun)
-  noun = tostring(noun)
-  return "the " .. noun
-end
-
-function an(noun)
-  noun = tostring(noun)
-  if noun:find("[aeiou]") == 1 then
-    return "an " .. noun
-  else
-    return "a " .. noun
-  end
-end
-#end_lua.
-
-% -----
-% Nouns
-% -----
+% ----- %
+% Nouns %
+% ----- %
 
 noun(C) :- character(C).
 noun(I) :- item(I).
@@ -76,12 +32,12 @@ name(noun(chr(2)), "princess").
 name(noun(chr(3)), "merchant").
 name(noun(chr(4)), "witch").
                  
-name(noun(itm(1)), "Farboots").
-name(noun(itm(2)), "Gnomehammer").
-name(noun(itm(3)), "Heavy Edge").
+name(noun(itm(1)), "sword").
+name(noun(itm(2)), "chest").
+name(noun(itm(3)), "crown").
                  
 name(noun(loc(1)), "castle").
-name(noun(loc(2)), "couryard").
+name(noun(loc(2)), "courtyard").
 name(noun(loc(3)), "forest").
 name(noun(loc(4)), "lake").
 
@@ -97,9 +53,9 @@ determined(Noun, @an(Name)) :-
   indefinite(Noun),
   determined(Noun).
 
-% -----
-% Verbs
-% -----
+% ----- %
+% Verbs %
+% ----- %
 
 % Note: everything's singular for now, so handling number agreement isn't
 % implemented... If you use present tense it'll be wrong though.
@@ -107,6 +63,7 @@ determined(Noun, @an(Name)) :-
 
 verb(A) :- atype(A).
 verb(give).
+verb(is).
 
 % Not the full English spectrum:
 tense(present; past; infinitive).
@@ -137,9 +94,9 @@ tense(past, verb(is), was).
 
 tense(infinitive, verb(is), "to be").
 
-% ------------------------
-% Verb Phrase Construction
-% ------------------------
+% ------------------------ %
+% Verb Phrase Construction %
+% ------------------------ %
 
 verb_phrase(Phrase, Tense, Verb, Object) :-
   tense(Tense, Verb, V),

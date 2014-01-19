@@ -57,7 +57,7 @@ location(loc(1..N)) :- n_locations(N).
 
 beginning(1).
 %ending(@randm(Min, Max)) :- min_situations(Min), max_situations(Max).
-ending(5).
+ending(N) :- max_situations(N).
 
 n_actions(N-1) :- ending(N).
 

@@ -1,3 +1,4 @@
+% vim: syn=gringo
 
 #begin_lua
 function rand(U)
